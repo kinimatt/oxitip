@@ -1,0 +1,239 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Online Information-Theoretic Inequality Prover";
+}
+ <h1 asp-area="" asp-page="/Index" style="font-family: 'Handlee', cursive;"  class="text-center"><span style="color: rgb(7,72,193)">o</span><span style="color:red">X</span>itip</h1>
+<h6 class="text-center">Online Information-Theoretic Inequality Prover</h6>
+<br>
+ 
+<div class="input-wapper">
+    <div class="email-wrapper">
+        Email : <input type="email" id="Email" placeholder="optional.." /> <img src="~/information.png" id="info" alt="How we use email?" />
+        <div id="email-info">
+            <span>In a hurry? No problem! We can mail in your result as soon as it is ready.</span>
+        </div>
+    </div>
+    <div class="text-center multi">
+        <form method="POST" asp-page-handler="Multi">
+            <textarea asp-for="ExpressionMultiline" rows="6" placeholder='I(X;Y|Z) <= I(X;Y)&#13;&#10;X/Y/Z' class="input" id="ExpressionMultiline"></textarea>   <input type="button" value="Try Me" id="multi-button">
+        </form>
+        <span id="multi-result"></span>
+    </div>
+    <br>
+    <br>
+    <div class="text-center single">
+        <div class="label">One line command</div>
+        <form method="POST" asp-page-handler="Single">
+            <input type="text" asp-for="Expression" placeholder="'I(X;Y|Z) <= I(X;Y)' 'X/Y/Z'" class="input" id="Expression" />   <input type="button" value="Try Me"  id="single-button"/>
+        </form>
+        <span id="single-result"></span>
+    </div>
+
+    <div id="loading">
+        <div>
+            <img src="~/spinner.gif" />
+            <span>Please wait...</span>
+
+        </div>
+    </div>
+</div>
+<div id="task-list">
+ 
+</div>
+@section Scripts{ 
+<script>
+
+    var id = localStorage.getItem("identity");
+    if (!id || id.length == 0) {
+        id = uuidv4();
+        localStorage.setItem("identity",id);
+    }
+
+    var taskIdentities = localStorage.getItem("taskIdentities");
+    if (!taskIdentities || taskIdentities.length == 0) {
+        taskIdentities = [];
+    } else {
+        taskIdentities = JSON.parse(taskIdentities);
+    }
+    var currentTaskIdentity;
+
+    var oldVal = "";
+    $("#ExpressionMultiline").on("change keyup paste", function() {
+        var currentVal = $(this).val();
+        if(currentVal == oldVal) {
+            return; //check to prevent multiple simultaneous triggers
+        }
+
+        oldVal = currentVal;
+        //action to be performed on textarea changed
+        var expression = "";
+        var currentVal = currentVal.split("\n");
+
+        currentVal.forEach(function(line) {
+            if (line.trim().length > 1) { expression = expression + '"' + line.trim() + '"' + ' '; }
+        });
+
+        $("#Expression").val(expression)
+
+        //alert("changed!");
+    });
+
+    $("#info").click(function (event) { 
+        $("#email-info").toggle()
+    });
+    $("#multi-button").click(function (event) {
+        $("#loading").show();
+        var expressionMultiline = $('#ExpressionMultiline').val();
+        var taskIdentity = { taskIdentity: uuidv4(), email: $('#Email').val(), expression: $('#ExpressionMultiline').val(), resut: ''};
+
+        currentTaskIdentity = taskIdentity;
+
+        taskIdentities.push(taskIdentity);
+        localStorage.setItem("taskIdentities", JSON.stringify(taskIdentities));
+
+        event.preventDefault();
+
+        connection.invoke("AddToGroup", taskIdentity.taskIdentity).catch(function (err) {
+            return console.error(err.toString());
+        });
+
+        $.ajax({
+            url: '/?handler=Multi',
+            type: 'POST',
+            data: {
+                ExpressionMultiline: expressionMultiline,
+                Identity: id,
+                Email: $('#Email').val(),
+                TaskIdentity: taskIdentity.taskIdentity
+            },
+            headers: {
+                RequestVerificationToken:
+                    $('input:hidden[name="__RequestVerificationToken"]').val()
+            }
+        }).done(function (result) {
+
+            console.log(result);
+            if(result && result.length>0){
+                $("#multi-result").html(result);
+                $("#loading").hide();
+            }
+            //$("#multi-result").append(result);
+        });
+
+    });
+
+  $("#single-button").click(function (event) {
+        $("#loading").show();
+        var expression = $('#Expression').val();
+        var taskIdentity = { taskIdentity: uuidv4(), email: $('#Email').val(), expression: expression, resut: ''};
+
+        currentTaskIdentity = taskIdentity;
+
+        taskIdentities.push(taskIdentity);
+        localStorage.setItem("taskIdentities", JSON.stringify(taskIdentities));
+
+        event.preventDefault();
+
+        connection.invoke("AddToGroup", taskIdentity.taskIdentity).catch(function (err) {
+            return console.error(err.toString());
+        });
+
+        $.ajax({
+            url: '/?handler=Single',
+            type: 'POST',
+            data: {
+                Expression: expression,
+                Identity: id,
+                Email: $('#Email').val(),
+                TaskIdentity: taskIdentity.taskIdentity
+            },
+            headers: {
+                RequestVerificationToken:
+                    $('input:hidden[name="__RequestVerificationToken"]').val()
+            }
+        }).done(function (result) {
+
+            console.log(result);
+            if(result && result.length>0){
+                $("#single-result").html(result);
+                $("#loading").hide();
+            }
+            //$("#multi-result").append(result);
+        });
+
+    });
+
+    function uuidv4() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
+    Object.defineProperty(String.prototype, 'hashCode', {
+        value: function () {
+            var hash = 0, i, chr;
+            for (i = 0; i < this.length; i++) {
+                chr = this.charCodeAt(i);
+                hash = ((hash << 5) - hash) + chr;
+                hash |= 0; // Convert to 32bit integer
+            }
+            return hash;
+        }
+    });
+
+    var connection = new signalR.HubConnectionBuilder().withUrl("/oxitipHub").build();
+
+    connection.onclose(reconnect);
+    startConnection();
+
+    function startConnection() {
+        console.log('connecting...');
+        connection.start()
+            .then(() => connected())
+            .catch(reconnect);
+    }
+
+    function reconnect() {
+        console.log('reconnecting...');
+        setTimeout(startConnection, 2000);
+    }
+
+    function connected() {
+        console.log('connected!')
+        for (var i = 0; i < taskIdentities.length - 1; i++) {
+            var taskIdentity = taskIdentities[i];
+            if (!taskIdentity.resut) {
+                connection.invoke("AddToGroup", taskIdentity.taskIdentity).catch(function (err) {
+                    return console.error(err.toString());
+                });
+            }
+        }
+    }
+
+
+    connection.on("TaskComplete", function (TaskIdentity, Result) {
+        //document.getElementById("messagesList").appendChild(li);
+        console.log(TaskIdentity, Result);
+
+        if (currentTaskIdentity.taskIdentity == TaskIdentity) {
+            $("#multi-result").html(Result);
+            $("#loading").hide();
+        } else {
+            if (taskIdentities.length > 0 && taskIdentities[taskIdentities.length - 1].taskIdentity == TaskIdentity) {
+                 $("#ExpressionMultiline").val(taskIdentities[taskIdentities.length - 1].expression);
+                 $("#multi-result").html(Result);
+            }
+        }
+    });
+
+   /* connection.start().then(function () {
+        document.getElementById("sendButton").disabled = false;
+    }).catch(function (err) {
+        return console.error(err.toString());
+    });
+
+   */
+</script>
+}

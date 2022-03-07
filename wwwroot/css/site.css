@@ -1,0 +1,213 @@
+﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
+for details on configuring this project to bundle and minify static web assets. */
+
+a.navbar-brand {
+    white-space: normal;
+    text-align: center;
+    word-break: break-all;
+}
+
+
+/* Provide sufficient contrast against white background */
+
+a {
+    color: #0366d6;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.nav-pills .nav-link.active,
+.nav-pills .show>.nav-link {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+
+/* Sticky footer styles
+-------------------------------------------------- */
+
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+.border-top {
+    border-top: 1px solid #e5e5e5;
+}
+
+.border-bottom {
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow {
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy {
+    font-size: 1rem;
+    line-height: inherit;
+}
+
+
+/* Sticky footer styles
+-------------------------------------------------- */
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    /* Margin bottom by footer height */
+    margin-bottom: 60px;
+}
+
+h1 {
+    font-size: 3.5rem;
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px;
+    /* Vertically center the text there */
+}
+
+.main-container {
+    padding-top: 70px;
+    padding-bottom: 50px;
+}
+
+.nav-link {
+    display: inline-block;
+    padding: .5rem 1rem;
+}
+
+.single .input,
+.single .label,
+.multi .input {
+    width: 80%;
+}
+
+.single .label {
+    text-align: left;
+    padding-left: 10%;
+}
+
+.single input[type=button],
+.multi input[type=button] {
+    background: green;
+    color: white;
+    border: none;
+    padding: 8px;
+    font-weight: 500;
+}
+
+@media (min-width: 768px) {
+    .single input[type=button],
+    .multi input[type=button] {
+        vertical-align: top;
+        padding: 3px 10px;
+    }
+    .single .label {
+        padding-left: calc(10% - 30px);
+    }
+    .footer-names {
+        float: right;
+        display: inline-block;
+        max-width: 80%;
+    }
+}
+
+@media (max-width: 768px) {
+    .single input[type=button],
+    .multi input[type=button] {
+        display: block;
+        margin: 5px auto;
+        width: 100px;
+    }
+    .footer-names {
+        display: block;
+        max-width: 100%;
+        white-space: initial;
+        text-align: left;
+        line-height: initial;
+        padding-bottom: 10px;
+    }
+}
+
+.input-wapper {
+    position: relative;
+}
+
+#loading {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    background-color: rgba(255, 255, 255, 0.5);
+    display: none;
+}
+
+#loading div {
+    position: relative;
+    height: 150px;
+    top: 50%;
+    margin-top: -75px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+#loading img {
+    vertical-align: middle;
+    border-style: none;
+    width: 150px;
+}
+
+#loading span {
+    display: block;
+    margin: 0 auto;
+    padding: 10px;
+    width: 228px;
+    margin-top: -50px;
+}
+
+.email-wrapper {
+    padding-bottom: 20px;
+    width: 85%;
+    margin: 0 auto;
+}
+
+.multi-result {
+    font-weight: 500;
+}
+
+#info {
+    width: 15px;
+    vertical-align: top;
+}
+
+#email-info {
+    display: none;
+    margin: 5px 0;
+}
